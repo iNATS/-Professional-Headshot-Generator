@@ -2,11 +2,65 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { GoogleGenAI, Modality } from "@google/genai";
 
+const styles = [
+    {
+        id: 'corporate',
+        name: 'Corporate',
+        imageUrl: 'https://images.pexels.com/photos/1595385/pexels-photo-1595385.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        prompt: "Generate a professional corporate headshot that looks authentic and approachable. Use soft, directional lighting that mimics a real-world office environment with large windows. The background should be a subtly blurred, modern office interior. The subject's expression should be confident yet relaxed, avoiding a stiff or overly posed look. Crucially, maintain natural skin texture and avoid an airbrushed finish. The final image should feel like a high-end photograph, not a digital creation."
+    },
+    {
+        id: 'creative',
+        name: 'Creative / Startup',
+        imageUrl: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        prompt: "Create an engaging, professional headshot suitable for a creative industry professional or startup founder. The lighting should be bright and natural, as if from a large window or in a well-lit studio. The background should be a clean, minimalist workspace. Capture a hint of personality in the expression—make it feel genuine and confident. Preserve natural skin details and texture for a realistic, high-quality photographic look. The goal is an image that feels authentic, not like a generic stock photo."
+    },
+    {
+        id: 'tech_ceo',
+        name: 'Tech CEO',
+        imageUrl: 'https://images.pexels.com/photos/8112173/pexels-photo-8112173.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        prompt: "Create a modern and approachable headshot for a tech leader. The subject should be wearing a simple, high-quality dark crewneck or turtleneck. The background should be a dark, minimalist, and slightly textured wall. The lighting should be clean and cinematic, with a single key light creating soft shadows. The expression should be confident, forward-thinking, and authentic. Focus on a photorealistic quality that feels both professional and relatable."
+    },
+    {
+        id: 'financial_legal',
+        name: 'Financial / Legal',
+        imageUrl: 'https://images.pexels.com/photos/7643770/pexels-photo-7643770.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        prompt: "Produce a classic and authoritative headshot suitable for the finance or legal sector. The subject should be in a sharp, perfectly tailored business suit. The background should be a subtly blurred, professional environment like a modern high-rise office or a classic library with bookshelves. The lighting should be crisp and clear, conveying trust and competence. The expression must be confident and trustworthy, with a natural, photorealistic finish."
+    },
+    {
+        id: 'classic',
+        name: 'Classic Studio',
+        imageUrl: 'https://images.pexels.com/photos/1043473/pexels-photo-1043473.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        prompt: "Produce a timeless, professional studio headshot with a high-end portrait photography aesthetic. Use classic lighting techniques like Rembrandt or butterfly lighting to create depth and dimension. The background should be a solid, textured neutral color like charcoal grey. The focus must be on a natural, confident expression. It is essential to preserve realistic skin texture and details, achieving timeless elegance rather than an artificial, overly smoothed appearance."
+    },
+    {
+        id: 'black_white',
+        name: 'Black & White',
+        imageUrl: 'https://images.pexels.com/photos/2218786/pexels-photo-2218786.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        prompt: "Generate a dramatic and sophisticated black and white corporate headshot. The image should be high-contrast monochrome, emulating a classic film portrait. Use lighting that creates a powerful chiaroscuro effect, with deep shadows and crisp highlights to accentuate facial features. The background should be a simple dark grey or black. The focus is on expression and texture, so it is crucial to maintain natural skin detail. The final result should be a powerful, timeless, and photorealistic portrait."
+    },
+    {
+        id: 'outdoor',
+        name: 'Natural Light',
+        imageUrl: 'https://images.pexels.com/photos/1105058/pexels-photo-1105058.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        prompt: "Generate a warm and approachable professional headshot using natural outdoor light. Emulate the soft, flattering light of the 'golden hour' (early morning or late afternoon). The background should be a beautifully blurred outdoor scene, such as a park or modern architecture, creating a pleasant bokeh effect. The subject's expression should feel candid and genuinely friendly. Ensure the final image has a natural, photographic quality, complete with realistic skin texture and lighting."
+    },
+    {
+        id: 'modern',
+        name: 'Modern Portrait',
+        imageUrl: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+        prompt: "Create a modern, professional headshot with a clean, solid-colored background in a contemporary hue like teal or slate blue. The lighting should be soft and even, creating a friendly and approachable feel. The subject's expression should be relaxed and confident. Focus on a natural, photorealistic quality, preserving skin texture and detail for an authentic look that's perfect for a modern resume or social media profile."
+    }
+];
+
+
 const App = () => {
     const [originalImage, setOriginalImage] = useState<{url: string, file: File} | null>(null);
     const [generatedImage, setGeneratedImage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [selectedStyle, setSelectedStyle] = useState(styles[0]);
+
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
@@ -56,7 +110,7 @@ const App = () => {
             };
 
             const textPart = {
-                text: "Transform this into a professional business headshot for a LinkedIn profile. The background should be a neutral, blurred office setting. Please ensure the lighting is flattering and the attire is business casual.",
+                text: selectedStyle.prompt,
             };
 
             const response = await ai.models.generateContent({
@@ -97,18 +151,43 @@ const App = () => {
         <>
             <div className="container">
                 <h1>Professional Headshot Generator</h1>
-                <p>Upload your photo and let AI transform it into a polished, business-ready headshot.</p>
+                <p>Upload a photo, choose your style, and let AI create a polished, business-ready headshot.</p>
                 
                 <div className="actions">
                     <label htmlFor="file-upload" className="btn">
                         Upload Photo
                     </label>
                     <input id="file-upload" type="file" accept="image/*" onChange={handleFileChange} />
-                    <button 
+                </div>
+
+                 <div className="style-selector">
+                    <h2>Choose a Style</h2>
+                    <div className="style-selector-wrapper">
+                        <div className="style-grid">
+                            {styles.map((style) => (
+                                <div 
+                                    key={style.id} 
+                                    className={`style-card ${selectedStyle.id === style.id ? 'selected' : ''}`}
+                                    onClick={() => setSelectedStyle(style)}
+                                    role="radio"
+                                    aria-checked={selectedStyle.id === style.id}
+                                    tabIndex={0}
+                                >
+                                    <img src={style.imageUrl} alt={style.name} />
+                                    <h4>{style.name}</h4>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+
+                <div className="actions">
+                     <button 
                         onClick={handleGenerate} 
-                        className="btn"
+                        className="btn btn-primary"
                         disabled={!originalImage || isLoading}
-                        aria-label="Generate professional headshot"
+                        aria-label="Generate professional headshot with selected style"
                     >
                         {isLoading ? 'Generating...' : 'Generate Headshot'}
                     </button>
